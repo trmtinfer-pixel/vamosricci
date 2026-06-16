@@ -7,7 +7,9 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get('userId')
 
-  const REDIRECT_URI = (process.env.NEXTAUTH_URL || 'http://localhost:3000') + '/api/auth/youtube/callback'
+  const host = request.headers.get('host')
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const REDIRECT_URI = protocol + '://' + host + '/api/auth/youtube/callback'
 
   const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
