@@ -11,7 +11,9 @@ export async function GET(request) {
   const code = searchParams.get('code')
   const state = searchParams.get('state')
 
-  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  const host = request.headers.get('host')
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const baseUrl = protocol + '://' + host
   const REDIRECT_URI = baseUrl + '/api/auth/youtube/callback'
 
   try {
@@ -21,6 +23,12 @@ export async function GET(request) {
 
     const youtube = google.youtube({ version: 'v3', auth: oauth2Client })
     const channelRes = await youtube.channels.list({ part: 'snippet', mine: true })
+    
+    if (!channelRes.data.items || channelRes.data.items.length === 0) {
+      console.error('No channel found')
+      return Response.redirect(baseUrl + '/dashboard?error=true')
+    }
+    
     const channel = channelRes.data.items[0]
     const profilePic = channel.snippet.thumbnails?.default?.url || null
 
@@ -37,7 +45,7 @@ export async function GET(request) {
 
     return Response.redirect(baseUrl + '/dashboard?connected=true')
   } catch (err) {
-    console.error(err)
+    console.error('CALLBACK ERROR:', err)
     return Response.redirect(baseUrl + '/dashboard?error=true')
   }
 }
