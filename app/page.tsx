@@ -161,7 +161,7 @@ export default function Home() {
 
       {/* FOOTER */}
       <footer style={{ textAlign: 'center', padding: '40px 60px', borderTop: '1px solid ' + theme.border, color: theme.faint, fontSize: '0.85rem' }}>
-        © 2026 VamosRicci · Built for creators
+        © 2026 VamosRicci · Built for creators · <Link href="/privacy" style={{ color: theme.faint, textDecoration: 'none' }}>Privacy Policy</Link> · <Link href="/terms" style={{ color: theme.faint, textDecoration: 'none' }}>Terms of Service</Link>
       </footer>
     </main>
   )
