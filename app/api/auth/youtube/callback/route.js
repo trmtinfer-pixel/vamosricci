@@ -16,24 +16,31 @@ export async function GET(request) {
   const baseUrl = protocol + '://' + host
   const REDIRECT_URI = baseUrl + '/api/auth/youtube/callback'
 
+  console.log('CODE:', code)
+  console.log('STATE:', state)
+  console.log('HOST:', host)
+  console.log('REDIRECT_URI:', REDIRECT_URI)
+
   try {
     const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
     const { tokens } = await oauth2Client.getToken(code)
+    console.log('TOKENS RECEIVED:', !!tokens)
     oauth2Client.setCredentials(tokens)
 
     const youtube = google.youtube({ version: 'v3', auth: oauth2Client })
     const channelRes = await youtube.channels.list({ part: 'snippet', mine: true })
-    
+    console.log('CHANNEL RES:', JSON.stringify(channelRes.data))
+
     if (!channelRes.data.items || channelRes.data.items.length === 0) {
       console.error('No channel found')
       return Response.redirect(baseUrl + '/dashboard?error=true')
     }
-    
+
     const channel = channelRes.data.items[0]
     const profilePic = channel.snippet.thumbnails?.default?.url || null
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
-    await supabase.from('youtube_accounts').upsert({
+    const { error } = await supabase.from('youtube_accounts').upsert({
       channel_id: channel.id,
       channel_name: channel.snippet.title,
       access_token: tokens.access_token,
@@ -43,9 +50,11 @@ export async function GET(request) {
       profile_pic: profilePic
     }, { onConflict: 'channel_id' })
 
+    console.log('UPSERT ERROR:', error)
+
     return Response.redirect(baseUrl + '/dashboard?connected=true')
   } catch (err) {
-    console.error('CALLBACK ERROR:', err)
+    console.error('CALLBACK ERROR:', err.message)
     return Response.redirect(baseUrl + '/dashboard?error=true')
   }
 }
