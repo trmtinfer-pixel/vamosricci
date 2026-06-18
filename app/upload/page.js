@@ -28,6 +28,7 @@ export default function Upload() {
   const [steps, setSteps] = useState([])
   const [userId, setUserId] = useState(null)
   const [isShort, setIsShort] = useState(true)
+  const [isAI, setIsAI] = useState(false)
 
   useEffect(() => { fetchAccounts() }, [])
 
@@ -82,7 +83,7 @@ export default function Upload() {
         const res = await fetch('/api/upload/youtube', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description, hashtags, fileUrl, channelId, userId, isShort })
+          body: JSON.stringify({ title, description, hashtags, fileUrl, channelId, userId, isShort, isAI })
         })
         const result = await res.json()
         if (result.success) {
@@ -114,7 +115,6 @@ export default function Upload() {
   return (
     <main style={{ minHeight: '100vh', background: theme.bg, color: theme.text, fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
 
-      {/* NAV */}
       <nav style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 40px', borderBottom: '1px solid ' + theme.border, background: theme.cardAlt }}>
         <span style={{ fontSize: '2.2rem', fontWeight: '800', letterSpacing: '-1px' }}>
           <span style={{ background: gradientBright, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Vamos</span>
@@ -176,6 +176,23 @@ export default function Upload() {
               🎬 Regular Video
             </div>
           </div>
+
+          <label style={labelStyle}>Is this video AI-generated or significantly altered?</label>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '8px' }}>
+            <div
+              onClick={() => setIsAI(true)}
+              style={{ flex: 1, padding: '12px', borderRadius: '10px', textAlign: 'center', cursor: 'pointer', border: isAI ? '2px solid #3b82f6' : '2px solid ' + theme.border, background: isAI ? '#0f1a2e' : theme.bg, fontWeight: '600', fontSize: '0.95rem' }}
+            >
+              🤖 Yes
+            </div>
+            <div
+              onClick={() => setIsAI(false)}
+              style={{ flex: 1, padding: '12px', borderRadius: '10px', textAlign: 'center', cursor: 'pointer', border: !isAI ? '2px solid #3b82f6' : '2px solid ' + theme.border, background: !isAI ? '#0f1a2e' : theme.bg, fontWeight: '600', fontSize: '0.95rem' }}
+            >
+              🎥 No
+            </div>
+          </div>
+          <p style={{ color: theme.faint, fontSize: '0.8rem', marginBottom: '24px' }}>YouTube requires disclosure of AI-generated or significantly altered content.</p>
 
           <label style={labelStyle}>Description</label>
           <textarea

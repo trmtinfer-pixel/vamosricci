@@ -9,7 +9,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export async function POST(request) {
   try {
-    const { title, description, hashtags, fileUrl, channelId, userId, isShort } = await request.json()
+    const { title, description, hashtags, fileUrl, channelId, userId, isShort, isAI } = await request.json()
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
     const { data: account } = await supabase
@@ -56,7 +56,8 @@ export async function POST(request) {
         },
         status: {
           privacyStatus: 'public',
-          selfDeclaredMadeForKids: false
+          selfDeclaredMadeForKids: false,
+          containsSyntheticMedia: isAI
         }
       },
       media: { body: videoStream }
